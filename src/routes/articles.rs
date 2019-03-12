@@ -1,4 +1,5 @@
 use crate::auth::Auth;
+use crate::auth::AuthOptional;
 use crate::db;
 use crate::db::articles::{FeedArticles, FindArticles};
 use crate::errors::{Errors, FieldValidator};
@@ -137,9 +138,10 @@ pub fn delete_comment(slug: String, id: i32, auth: Auth, conn: db::Conn) {
     db::comments::delete(&conn, auth.id, &slug, id);
 }
 
+
 #[get("/articles/<slug>/comments")]
-pub fn get_comments(slug: String, conn: db::Conn) -> Json<JsonValue> {
-    let comments = db::comments::find_by_slug(&conn, &slug);
+pub fn get_comments(slug: String, auth: AuthOptional, conn: db::Conn) -> Json<JsonValue> {
+    let comments = db::comments::find_by_slug(&conn, &slug, auth.id);
     Json(json!({ "comments": comments }))
 }
 
