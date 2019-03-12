@@ -30,9 +30,24 @@ impl Auth {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct AuthOptional {
+    /// timestamp
+    pub exp: Option<i64>,
+    pub id: Option<i32>,
+    pub username: Option<String>
+}
+impl AuthOptional{
+    pub fn new_logged(auth: Auth) -> AuthOptional {
+        AuthOptional {id: Some(auth.id), exp: Some(auth.exp), username: Some(auth.username)}
+    }
+    pub fn new() -> AuthOptional {
+        AuthOptional {id: None, exp: None, username: None}
+    }
+}
+
 impl<'a, 'r> FromRequest<'a, 'r> for Auth {
     type Error = ();
-
     fn from_request(request: &'a Request<'r>) -> request::Outcome<Auth, ()> {
         if let Some(auth) = extract_auth_from_request(request) {
             Outcome::Success(auth)
@@ -41,6 +56,21 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
         }
     }
 }
+
+
+impl<'a, 'r> FromRequest<'a, 'r> for AuthOptional {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<AuthOptional, ()> {
+        println!("{:?}", request);
+        if let Some(auth) =  extract_auth_from_request(request) {
+            Outcome::Success(AuthOptional::new_logged(auth))
+        } else {
+            Outcome::Success(AuthOptional::new())
+        }
+    }
+}
+
 
 fn extract_auth_from_request(request: &Request) -> Option<Auth> {
     let header = request.headers().get("authorization").next();
