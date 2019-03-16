@@ -16,7 +16,7 @@ pub fn find(conn: &PgConnection, name: &str, user_id: Option<i32>) -> Option<Pro
         .map(|id| is_following(conn, &user, id))
         .unwrap_or(false);
 
-    Some(user.to_profile(following))
+    Some(user.into_profile(following))
 }
 
 fn is_following(conn: &PgConnection, user: &User, user_id: i32) -> bool {
@@ -42,7 +42,7 @@ pub fn follow(conn: &PgConnection, followed_name: &str, follower_id: i32) -> Opt
         .execute(conn)
         .expect("Cannot follow");
 
-    Some(followed.to_profile(true))
+    Some(followed.into_profile(true))
 }
 
 pub fn unfollow(conn: &PgConnection, followed_name: &str, follower_id: i32) -> Option<Profile> {
@@ -55,5 +55,5 @@ pub fn unfollow(conn: &PgConnection, followed_name: &str, follower_id: i32) -> O
         .execute(conn)
         .expect("Cannot unfollow");
 
-    Some(followed.to_profile(false))
+    Some(followed.into_profile(false))
 }

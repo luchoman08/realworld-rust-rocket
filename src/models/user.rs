@@ -51,7 +51,7 @@ impl User {
         }
     }
 
-    pub fn to_profile(self, following: bool) -> Profile {
+    pub fn into_profile(self, following: bool) -> Profile {
         Profile {
             username: self.username,
             bio: self.bio,
