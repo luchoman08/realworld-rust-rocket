@@ -50,7 +50,6 @@ impl User {
             token,
         }
     }
-
     pub fn into_profile(self, following: bool) -> Profile {
         Profile {
             username: self.username,

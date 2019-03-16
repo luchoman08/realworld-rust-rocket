@@ -1,5 +1,5 @@
 use crate::config::DATE_FORMAT;
-use crate::models::user::User;
+use crate::models::user::Profile;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 
@@ -18,7 +18,7 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn attach(self, author: User, favorited: bool) -> ArticleJson {
+    pub fn attach(self, author: Profile, favorited: bool) -> ArticleJson {
         ArticleJson {
             id: self.id,
             slug: self.slug,
@@ -43,7 +43,7 @@ pub struct ArticleJson {
     pub title: String,
     pub description: String,
     pub body: String,
-    pub author: User,
+    pub author: Profile,
     pub tag_list: Vec<String>,
     pub created_at: String,
     pub updated_at: String,

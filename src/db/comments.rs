@@ -1,8 +1,6 @@
 use crate::models::comment::{Comment, CommentJson};
 use crate::models::user::User;
-use crate::schema::articles;
-use crate::schema::comments;
-use crate::schema::users;
+use crate::schema::{articles, comments, users};
 use diesel;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -36,10 +34,15 @@ pub fn create(conn: &PgConnection, author: i32, slug: &str, body: &str) -> Comme
         .values(new_comment)
         .get_result::<Comment>(conn)
         .expect("Error creating comment")
-        .attach(author)
+        .attach(author.into_profile(false))
 }
 
-pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
+pub fn find_by_slug(
+    conn: &PgConnection,
+    slug: &str,
+    current_user_id: Option<i32>,
+) -> Vec<CommentJson> {
+    use crate::db::users::into_profile_for;
     let result = comments::table
         .inner_join(articles::table)
         .inner_join(users::table)
@@ -50,7 +53,7 @@ pub fn find_by_slug(conn: &PgConnection, slug: &str) -> Vec<CommentJson> {
 
     result
         .into_iter()
-        .map(|(comment, author)| comment.attach(author))
+        .map(|(comment, author)| comment.attach(into_profile_for(conn, author, current_user_id)))
         .collect()
 }
 

@@ -1,4 +1,4 @@
-use crate::models::user::User;
+use crate::models::user::{Profile, User};
 use crate::schema::users;
 use crypto::scrypt::{scrypt_check, scrypt_simple, ScryptParams};
 use diesel::dsl::{exists, select};
@@ -29,7 +29,6 @@ pub fn create(conn: &PgConnection, username: &str, email: &str, password: &str) 
         .get_result(conn)
         .expect("Error saving user")
 }
-
 pub fn login(conn: &PgConnection, email: &str, password: &str) -> Option<User> {
     let user = users::table
         .filter(users::email.eq(email))
@@ -83,6 +82,12 @@ pub fn update(conn: &PgConnection, id: i32, data: &UpdateUserData) -> Option<Use
         .set(data)
         .get_result(conn)
         .ok()
+}
+
+pub fn into_profile_for(conn: &PgConnection, user: User, user_id: Option<i32>) -> Profile {
+    use crate::db::profiles::is_following;
+    let following = user_id.map_or(false, |user_id| is_following(conn, &user, user_id));
+    user.into_profile(following)
 }
 
 pub fn username_exists(conn: &PgConnection, username: &str) -> bool {
